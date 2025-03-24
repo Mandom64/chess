@@ -7,6 +7,7 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 let b = [];
 let rows = 8;
 let cols = 8;
+/* test */
 
 function drawBoard() {
     let squareWidth = canvas.width / rows;
