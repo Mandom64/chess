@@ -4,10 +4,18 @@ const ctx = canvas.getContext("2d");
 ctx.fillStyle = "white";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-let b = [];
 let rows = 8;
 let cols = 8;
-/* test */
+let b = new Array(rows);
+
+function initBoard() {
+    for(let row = 0; row < rows; row++) {
+        b[row] = new Array(rows);
+        for(let col = 0; col < cols; col++) {
+            b[row][col] = 0;
+        }
+    }
+}
 
 function drawBoard() {
     let squareWidth = canvas.width / rows;
@@ -25,9 +33,25 @@ function drawBoard() {
     }
 }
 
-drawBoard();
-
-b[]
-function drawPieces() {
-
+function printBoard() {
+    for(let row = 0; row < rows; row++) {
+        console.log(b[row].join(" "));
+    }
 }
+
+function drawPieces() {
+    let squareWidth = canvas.width / rows;
+    let squareHeight = canvas.height / cols;
+    
+    ctx.fillStyle = "red";
+    for (let row = 0; row < rows; row++) {
+        for(let col = 0; col < cols; col++) {
+            ctx.fillText(b[row][col], col * squareWidth, row * squareHeight, squareWidth, squareHeight);
+        }
+    }
+}
+
+initBoard();
+drawBoard();
+drawPieces();
+printBoard();
