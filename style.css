@@ -4,7 +4,6 @@ body {
     padding: 0; /* Ensures full coverage */
 }
 
-
 #board {
     display: block; /* Makes it behave like a div, required for margin: auto */
     margin: auto; /* Centers horizontaly an element within it's parent */
