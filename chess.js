@@ -3,24 +3,9 @@ const ctx = canvas.getContext("2d");
 
 let rows = 8;
 let cols = 8;
-let b = new Array(rows);
-let FEN = "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R"; /* Starting position*/
+let FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"; /* Starting position*/
 
-/* Piece Images */
-const bKingImg   = "https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg";
-const bQueenImg  = "https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg";
-const bRookImg   = "https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg";
-const bBishopImg = "https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg";
-const bKnightImg = "https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg";
-const bPawnImg   = "https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg";
-const wKingImg   = "https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg";
-const wQueenImg  = "https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg";
-const wRookImg   = "https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg";
-const wBishopImg = "https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg";
-const wKnightImg = "https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg";
-const wPawnImg   = "https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg";
-
-const PieceType = {
+const Type = {
     King:   1,
     Queen:  2,
     Rook:   3,
@@ -30,21 +15,50 @@ const PieceType = {
     Empty:  0,
 };
 
-let PieceColor = {
-
+const Color = {
+    White: 1,
+    Black: 2,
+    None:  0,
 };
 
-
-function initBoard() {
-    for(let row = 0; row < rows; row++) {
-        b[row] = new Array(rows);
-        for(let col = 0; col < cols; col++) {
-            b[row][col] = '0';
-        }
+class Position {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
     }
 }
 
-function drawPattern() {
+class Piece {
+    constructor(type, color, position) {
+        this.type = type;
+        this.color = color;
+        this.position = position;
+    }
+}
+
+let Pieces = [];
+
+const PieceImages = {
+    [Color.Black]: {
+        [Type.King]:   "https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg",
+        [Type.Queen]:  "https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg",
+        [Type.Rook]:   "https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg",
+        [Type.Bishop]: "https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg",
+        [Type.Knight]: "https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg",
+        [Type.Pawn]:   "https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg",
+    },
+    [Color.White]: {
+        [Type.King]:   "https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg",
+        [Type.Queen]:  "https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg",
+        [Type.Rook]:   "https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg",
+        [Type.Bishop]: "https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg",
+        [Type.Knight]: "https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg",
+        [Type.Pawn]:   "https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg",
+    }
+};
+
+function drawBoard() {
+    /* Checker Pattern */
     let rectW = canvas.width / rows;
     let rectH = canvas.height / cols;
 
@@ -54,33 +68,34 @@ function drawPattern() {
             let rectY = row * rectH;
 
             if((row+col) % 2 == 0) {
-                ctx.fillStyle = "white";
+                ctx.fillStyle = "#FFFFFF";
             } else {
                 ctx.fillStyle = "#FFE194";
             }
             ctx.fillRect(rectX, rectY, rectW, rectH);
         }
     }
+
+    /* TODO: Algebraic Notation */
+
 }
 
-function printBoard() {
-    for(let row = 0; row < rows; row++) {
-        console.log(b[row].join(" "));
-    }
+function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
 }
 
 function drawImage(path, x, y) {
-    if(path == " ") {
-        return;
-    }
+    if(!path.length) return;
 
     var img = new Image();
     img.onload = function() {
         ctx.drawImage(img, x, y, img.width*1.5, img.height*1.5);
     }
-    img.src = path;
+    img.src = path; 
 }
 
+/* Needs simplifying */
 function loadPosition() {
     let rank = FEN.split("/");
 
@@ -95,68 +110,53 @@ function loadPosition() {
             }
             
             switch (square) {
-                case 'r': b[row][col] = 'r'; break;
-                case 'n': b[row][col] = 'n'; break;
-                case 'b': b[row][col] = 'b'; break;
-                case 'q': b[row][col] = 'q'; break;
-                case 'k': b[row][col] = 'k'; break;
-                case 'p': b[row][col] = 'p'; break;
-                case 'R': b[row][col] = 'R'; break;
-                case 'N': b[row][col] = 'N'; break;
-                case 'B': b[row][col] = 'B'; break;
-                case 'Q': b[row][col] = 'Q'; break;
-                case 'K': b[row][col] = 'K'; break;
-                case 'P': b[row][col] = 'P'; break;
+                case 'r': Pieces.push(new Piece(Type.Rook, Color.Black, new Position(row, col))); break;
+                case 'n': Pieces.push(new Piece(Type.Knight, Color.Black, new Position(row, col))); break;
+                case 'b': Pieces.push(new Piece(Type.Bishop, Color.Black, new Position(row, col))); break;
+                case 'q': Pieces.push(new Piece(Type.Queen, Color.Black, new Position(row, col))); break;
+                case 'k': Pieces.push(new Piece(Type.King, Color.Black, new Position(row, col))); break;
+                case 'p': Pieces.push(new Piece(Type.Pawn, Color.Black, new Position(row, col))); break;
+                case 'R': Pieces.push(new Piece(Type.Rook, Color.White, new Position(row, col))); break;
+                case 'N': Pieces.push(new Piece(Type.Knight, Color.White, new Position(row, col))); break;
+                case 'B': Pieces.push(new Piece(Type.Bishop, Color.White, new Position(row, col))); break;
+                case 'Q': Pieces.push(new Piece(Type.Queen, Color.White, new Position(row, col))); break;
+                case 'K': Pieces.push(new Piece(Type.King, Color.White, new Position(row, col))); break;
+                case 'P': Pieces.push(new Piece(Type.Pawn, Color.White, new Position(row, col))); break;
             }
-
             col++;
         }
     }
 }
-// let FEN = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR"; /* Starting position*/
+
 function drawPieces() {
     let rectW = canvas.width / rows;
     let rectH = canvas.height / cols;
-    let rank = FEN.split("/");
-    let PieceToDraw;
+    
+    for(let piece of Pieces) {
+        let rectX = piece.position.y * rectW;
+        let rectY = piece.position.x  * rectH;
+        let PieceToDraw = PieceImages[piece.color]?.[piece.type];
 
-    for (let row = 0; row < rows; row++) {
-        let col = 0;
-
-        for(let i = 0; i < rank[row].length; i++) {
-            let square = rank[row].charAt(i);
-            if (!isNaN(square)) {
-                col += parseInt(square);
-                continue;
-            }
-            let rectX = col * rectW;
-            let rectY = row * rectH;
-            
-            switch (square) {
-                case 'r': PieceToDraw = bRookImg; break;
-                case 'n': PieceToDraw = bKnightImg; break;
-                case 'b': PieceToDraw = bBishopImg; break;
-                case 'q': PieceToDraw = bQueenImg; break;
-                case 'k': PieceToDraw = bKingImg; break;
-                case 'p': PieceToDraw = bPawnImg; break;
-                case 'R': PieceToDraw = wRookImg; break;
-                case 'N': PieceToDraw = wKnightImg; break;
-                case 'B': PieceToDraw = wBishopImg; break;
-                case 'Q': PieceToDraw = wQueenImg; break;
-                case 'K': PieceToDraw = wKingImg; break;
-                case 'P': PieceToDraw = wPawnImg; break;
-            }
-            
-            if (PieceToDraw) {
-                drawImage(PieceToDraw, rectX + rectW/16, rectY + rectH/16);
-            }
-            col++;
+        if (PieceToDraw) {
+            drawImage(PieceToDraw, rectX + rectW/16, rectY + rectH/16);
         }
     }
 }
 
-initBoard();
+function draw() {
+    clearBoard();
+    drawBoard();
+    drawPieces();
+}
+
+function Move(piece, newSquare) {
+    if(piece) {
+        piece.position = new Position(newSquare.x, newSquare.y);
+    }
+}
+
 loadPosition();
-drawPattern();
-drawPieces();
-printBoard();
+draw();
+Move(Pieces[1], new Position(2, 2));  
+draw();
+console.log(Pieces);
