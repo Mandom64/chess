@@ -1,10 +1,15 @@
-const canvas = document.getElementById("board");
+/*
+    Main script for the app, might break it into more files later 
+*/
+const canvas = document.getElementById("Board");
 const ctx = canvas.getContext("2d");
 
+/* Globals */
 let rows = 8;
 let cols = 8;
 let FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"; /* Starting position*/
 
+/* Piece struct */
 const Type = {
     King:   1,
     Queen:  2,
@@ -36,8 +41,11 @@ class Piece {
     }
 }
 
+/* List of all the pieces currently on the board */
 let Pieces = [];
 
+/* Object that holds all the piece image paths, wonder if throwing stuff like this
+   in a separate file is the proper way to go about this */
 const PieceImages = {
     [Color.Black]: {
         [Type.King]:   "https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg",
@@ -57,45 +65,7 @@ const PieceImages = {
     }
 };
 
-function drawBoard() {
-    /* Checker Pattern */
-    let rectW = canvas.width / rows;
-    let rectH = canvas.height / cols;
-
-    for (let row = 0; row < rows; row++) {
-        for(let col = 0; col < cols; col++) {
-            let rectX = col * rectW;
-            let rectY = row * rectH;
-
-            if((row+col) % 2 == 0) {
-                ctx.fillStyle = "#FFFFFF";
-            } else {
-                ctx.fillStyle = "#FFE194";
-            }
-            ctx.fillRect(rectX, rectY, rectW, rectH);
-        }
-    }
-
-    /* TODO: Algebraic Notation */
-
-}
-
-function clearBoard() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.beginPath();
-}
-
-function drawImage(path, x, y) {
-    if(!path.length) return;
-
-    var img = new Image();
-    img.onload = function() {
-        ctx.drawImage(img, x, y, img.width*1.5, img.height*1.5);
-    }
-    img.src = path; 
-}
-
-/* Needs simplifying */
+/* TODO: Needs simplifying */
 function loadPosition() {
     let rank = FEN.split("/");
 
@@ -128,6 +98,44 @@ function loadPosition() {
     }
 }
 
+function drawBoard() {
+    /* Checker Pattern */
+    let rectW = canvas.width / rows;
+    let rectH = canvas.height / cols;
+
+    for (let row = 0; row < rows; row++) {
+        for(let col = 0; col < cols; col++) {
+            let rectX = col * rectW;
+            let rectY = row * rectH;
+
+            if((row+col) % 2 == 0) {
+                ctx.fillStyle = "#FFFFFF";
+            } else {
+                ctx.fillStyle = "#FFE194";
+            }
+            ctx.fillRect(rectX, rectY, rectW, rectH);
+        }
+    }
+
+    /* TODO: Algebraic Notation */
+
+}
+
+async function clearBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function drawImage(path, x, y) {
+    if(path) {
+        var img = new Image();
+        img.onload = function() {
+            ctx.drawImage(img, x, y, img.width*1.5, img.height*1.5);
+        }
+        img.src = path; 
+    }
+}
+
+/* TODO: remove fixed values for adjusting image position and size to the board */
 function drawPieces() {
     let rectW = canvas.width / rows;
     let rectH = canvas.height / cols;
@@ -143,20 +151,25 @@ function drawPieces() {
     }
 }
 
-function draw() {
-    clearBoard();
+/* TODO: Understand how js executes code and unless i do this scrappy thing
+         images persist when redrawing */
+async function draw() {
+    await clearBoard();
     drawBoard();
     drawPieces();
 }
 
 function Move(piece, newSquare) {
     if(piece) {
-        piece.position = new Position(newSquare.x, newSquare.y);
+        piece.position = newSquare;
     }
 }
 
 loadPosition();
+Move(Pieces[1], new Position(2, 2));
 draw();
-Move(Pieces[1], new Position(2, 2));  
+Move(Pieces[1], new Position(2, 2));
+draw();
+Move(Pieces[1], new Position(3, 3));
 draw();
 console.log(Pieces);

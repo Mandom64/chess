@@ -1,10 +1,10 @@
 body {
-    background-color: #78909c; /* Sets background for the whole page */
-    margin: 0; /* Removes default margins */
-    padding: 0; /* Ensures full coverage */
+    background-color: #78909c;
+    margin: 0;
+    padding: 0;
 }
 
-#board {
+#Board {
     display: block; /* Makes it behave like a div, required for margin: auto */
     margin: auto; /* Centers horizontaly an element within it's parent */
 }
