@@ -65,8 +65,27 @@ const PieceImages = {
     }
 };
 
+const PieceMap = {
+    [Color.Black]: {
+        [Type.King]:   "k",
+        [Type.Queen]:  "q",
+        [Type.Rook]:   "r",
+        [Type.Bishop]: "b",
+        [Type.Knight]: "k",
+        [Type.Pawn]:   "p",
+    },
+    [Color.White]: {
+        [Type.King]:   "K",
+        [Type.Queen]:  "Q",
+        [Type.Rook]:   "R",
+        [Type.Bishop]: "B",
+        [Type.Knight]: "K",
+        [Type.Pawn]:   "P",
+    }
+};
+
 /* TODO: Needs simplifying */
-function loadPosition() {
+function loadFEN() {
     let rank = FEN.split("/");
 
     for (let row = 0; row < rows; row++) {
@@ -75,10 +94,13 @@ function loadPosition() {
         for(let i = 0; i < rank[row].length; i++) {
             let square = rank[row].charAt(i);
             if (!isNaN(square)) {
+                for(let i = col; i < col + parseInt(square); i++) {
+                    Pieces.push(new Piece(Type.Empty, Color.None, new Position(row, i)));
+                }
                 col += parseInt(square);
                 continue;
             }
-            
+                    
             switch (square) {
                 case 'r': Pieces.push(new Piece(Type.Rook, Color.Black, new Position(row, col))); break;
                 case 'n': Pieces.push(new Piece(Type.Knight, Color.Black, new Position(row, col))); break;
@@ -98,6 +120,34 @@ function loadPosition() {
     }
 }
 
+function genFEN() {
+    let FEN = "";
+    let b = [];
+    for(let row = 0; row < rows; row++) {
+        b[row] = new Array(cols);
+    }
+    for(let piece of Pieces) {
+        b[piece.position.x][piece.position.y] = piece.type;
+    }
+    console.table(b);
+    
+    for(let i = 0; i < Pieces.length; i++) {
+        let e = 0;
+        if(Pieces[i].type == Type.Empty) {
+            while(Pieces[i].type == Type.Empty) {
+                e++;
+                i++;
+            }
+            FEN += e.toString();
+            continue;
+        }
+        FEN += PieceMap[Pieces[i].color]?.[Pieces[i].type];
+    }
+
+    console.log(FEN);
+
+}
+
 function drawBoard() {
     /* Checker Pattern */
     let rectW = canvas.width / rows;
@@ -108,7 +158,7 @@ function drawBoard() {
             let rectX = col * rectW;
             let rectY = row * rectH;
 
-            if((row+col) % 2 == 0) {
+            if((row + col) % 2 == 0) {
                 ctx.fillStyle = "#FFFFFF";
             } else {
                 ctx.fillStyle = "#FFE194";
@@ -160,16 +210,20 @@ async function draw() {
 }
 
 function Move(piece, newSquare) {
+    
     if(piece) {
+        let oldPosition = piece.position;
         piece.position = newSquare;
+
     }
 }
 
-loadPosition();
+loadFEN();
 Move(Pieces[1], new Position(2, 2));
 draw();
 Move(Pieces[1], new Position(2, 2));
 draw();
 Move(Pieces[1], new Position(3, 3));
 draw();
+genFEN();
 console.log(Pieces);
