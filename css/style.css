@@ -1,3 +1,11 @@
+/* 
+	Since i started using Live Server this is needed
+	for the body to fully display for some reason...
+*/
+html, body {
+    height: 100%;
+}
+
 body {
 	background-color: #78909c;
 	margin: 0;
