@@ -1,7 +1,9 @@
 /*
-    TODO: To be done.
+    TODO: Find a way to make this work with dragging and dropping
+	the pieces with the mouse.
 */
-import { Letters, PieceImages } from './globals.js';
+import { Letters, Numbers, PieceImages } from './globals.js';
+import { isLowerCase, isUpperCase } from './utils.js';
 
 export class Position {
 	constructor(col, row) {
@@ -29,7 +31,7 @@ export class Board {
 
 	Print() {
 		console.table(this.square);
-		console.log(this.square);
+		// console.log(this.square);
 	}
 
 	/* 
@@ -39,25 +41,37 @@ export class Board {
 		let from = new Position(Letters[str[0]], this.cols - str[1]);
 		let to = new Position(Letters[str[2]], this.cols - str[3]);
 		let piece = this.square[from.row][from.col];
+		let nextSquare = this.square[to.row][to.col];
 
+		/* Out of bounds check */
 		if (to.row < 0 || to.row > this.rows || to.col < 0 || to.col > this.cols) {
 			console.log('Error: move ' + str + 'is illegal!');
 			return;
 		}
 
-		// console.log(piece, from, this.square[from.row][from.col]);
-		// console.log(piece, to, this.square[to.row][to.col]);
-		// console.log("Abs: " + Math.abs(from.row - to.row));
+		/* Color check */
+		if (nextSquare !== '0') {
+			if (
+				(isLowerCase(piece) && isLowerCase(nextSquare)) ||
+				(isUpperCase(piece) && isUpperCase(nextSquare))
+			) {
+				console.log('isLowerCase(piece) && isLowerCase(nextSquare): ' + (isLowerCase(piece) && isLowerCase(nextSquare)));
+				console.log('Error: move ' + str + ' is blocked by friendly piece');
+				return;
+			}
+		}
 
 		switch (piece) {
 			case 'p':
 				/* Forward check */
-				if (this.square[to.row][to.col] == '0') {
-					if (from.row == 1 && Math.abs(from.row - to.row) <= 2) return true;
-					if (Math.abs(from.row - to.row) == 1) return true;
+				if (nextSquare === '0') {
+					let squaresMoved = from.row - to.row;
+					console.log('SquaresMoved: ' + squaresMoved);
+					if (from.row == 1 && squaresMoved >= -2) return true;
+					if (squaresMoved === -1) return true;
 				}
 				/* Diagonal check */
-				//if (this.square[])
+				// if (this.square[])
 				break;
 			case 'r':
 				return true;
@@ -75,11 +89,6 @@ export class Board {
 				return true;
 				break;
 			case 'P':
-				if (
-					this.square[to.row][to.col] == '0' &&
-					Math.abs(from.row - to.row) == 1
-				)
-					return true;
 				break;
 			case 'R':
 				return true;
@@ -123,7 +132,7 @@ export class Board {
 				let rectY = row * rectH;
 
 				/* Checker Pattern */
-				if ((row + col) % 2 == 0) {
+				if ((row + col) % 2 === 0) {
 					ctx.fillStyle = '#FFFFFF';
 				} else {
 					ctx.fillStyle = '#FFE194';
@@ -131,13 +140,13 @@ export class Board {
 				ctx.fillRect(rectX, rectY, rectW, rectH);
 
 				/* Algebraic Notation */
-				if (col == this.cols - 1) {
+				if (col === this.cols - 1) {
 					ctx.fillStyle = '#000000';
 					ctx.fillText(this.rows - row + 1, rectX, rectY);
 				}
-				if (row == this.rows - 1) {
+				if (row === this.rows - 1) {
 					ctx.fillStyle = '#000000';
-					ctx.fillText(col + 1, rectX, rectY + rectH);
+					ctx.fillText(Numbers[col], rectX, rectY + rectH);
 				}
 
 				/* Pieces */

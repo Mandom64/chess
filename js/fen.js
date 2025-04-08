@@ -29,7 +29,7 @@ export class FEN {
 
 		global.activeColor = fields[1];
 
-		if (fields[2] == '-') {
+		if (fields[2] === '-') {
 			global.castling.k =
 				global.castling.q =
 				global.castling.K =
@@ -62,8 +62,8 @@ export class FEN {
 			for (let col = 0; col < board.cols; col++) {
 				let e = 0;
 
-				if (board.square[row][col] == '0') {
-					while (board.square[row][col] == '0') {
+				if (board.square[row][col] === '0') {
+					while (board.square[row][col] === '0') {
 						e++;
 						if (col + 1 < board.cols) col++;
 						else break;

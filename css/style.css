@@ -1,6 +1,6 @@
 /* 
 	Since i started using Live Server this is needed
-	for the body to fully display for some reason...
+	for the body to display full height for some reason...
 */
 html, body {
     height: 100%;
@@ -19,4 +19,10 @@ body {
 	top: 50%;
 	transform: translate(-50%, -50%);
 	border: 5px solid black;
+}
+
+#MoveInput {
+	position: absolute;
+	top: 15%;
+	left: 70%;
 }
