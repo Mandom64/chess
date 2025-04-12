@@ -3,14 +3,14 @@
 	the pieces with the mouse.
 */
 import { Letters, Numbers, PieceImages } from './globals.js';
-import { isLowerCase, isUpperCase } from './utils.js';
+import { isLowerCase, isUpperCase, Vec2 } from './utils.js';
 
-export class Position {
-	constructor(col, row) {
-		this.col = col;
-		this.row = row;
-	}
-}
+// export class Position {
+// 	constructor(row, col) {
+// 		this.row = row;
+// 		this.col = col;
+// 	}
+// }
 
 /* 
     Board y is 'this.cols - y' because of algebraic notation for the moves 
@@ -31,22 +31,17 @@ export class Board {
 
 	Print() {
 		console.table(this.square);
-		// console.log(this.square);
 	}
 
-	/* 
-        TODO: There must be a better way to access the board using algebraic notation
-    */
-	isValidMove(str) {
-		let from = new Position(Letters[str[0]], this.cols - str[1]);
-		let to = new Position(Letters[str[2]], this.cols - str[3]);
+	isValidMove(from, to) {
+		let dir = new Vec2(from.row - to.row, from.col - to.col);
 		let piece = this.square[from.row][from.col];
 		let nextSquare = this.square[to.row][to.col];
 
 		/* Out of bounds check */
 		if (to.row < 0 || to.row > this.rows || to.col < 0 || to.col > this.cols) {
 			console.log('Error: move ' + str + 'is illegal!');
-			return;
+			return false;
 		}
 
 		/* Color check */
@@ -55,23 +50,24 @@ export class Board {
 				(isLowerCase(piece) && isLowerCase(nextSquare)) ||
 				(isUpperCase(piece) && isUpperCase(nextSquare))
 			) {
-				console.log('isLowerCase(piece) && isLowerCase(nextSquare): ' + (isLowerCase(piece) && isLowerCase(nextSquare)));
-				console.log('Error: move ' + str + ' is blocked by friendly piece');
-				return;
+				console.log('Error: move is blocked by friendly piece');
+				return false;
 			}
 		}
 
 		switch (piece) {
 			case 'p':
 				/* Forward check */
-				if (nextSquare === '0') {
-					let squaresMoved = from.row - to.row;
-					console.log('SquaresMoved: ' + squaresMoved);
-					if (from.row == 1 && squaresMoved >= -2) return true;
-					if (squaresMoved === -1) return true;
+				if (dir.col === 0 && dir.row !== 0 && nextSquare === '0') {
+					if (from.row == 1 && dir.row >= -2) return true; // Pawn can move 2 squares at start
+					if (dir.row === -1) return true; // Pawn can only move forward
 				}
+
 				/* Diagonal check */
-				// if (this.square[])
+				if (Math.abs(dir.row) === 1 && dir.col !== 0 && nextSquare !== '0') {
+					return true;
+				}
+
 				break;
 			case 'r':
 				return true;
@@ -89,6 +85,17 @@ export class Board {
 				return true;
 				break;
 			case 'P':
+				/* Forward check */
+				if (dir.col === 0 && dir.row !== 0 && nextSquare === '0') {
+					if (from.row == 6 && dir.row >= -2) return true; // Pawn can move 2 squares at start
+					if (dir.row === 1) return true; // Pawn can only move forward
+				}
+
+				/* Diagonal check */
+				if (Math.abs(dir.row) === 1 && dir.col !== 0 && nextSquare !== '0') {
+					return true;
+				}
+
 				break;
 			case 'R':
 				return true;
@@ -109,11 +116,14 @@ export class Board {
 		return false;
 	}
 
+	// c7c6 = { x: 1, y: 7 }, { x: 1, y: 6}
+	// c7: row: 7, col: 2
+	// c6: row: 6, col: 2
 	Move(str) {
-		let from = new Position(Letters[str[0]], this.cols - str[1]);
-		let to = new Position(Letters[str[2]], this.cols - str[3]);
+		let from = new Vec2(parseInt(this.rows - str[1]), Letters[str[0]]);
+		let to = new Vec2(parseInt(this.rows - str[3]), Letters[str[2]]);
 
-		if (!this.isValidMove(str)) {
+		if (!this.isValidMove(from, to)) {
 			console.log('Error: Move ' + str + ' is not valid.');
 			return;
 		}

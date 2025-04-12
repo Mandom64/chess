@@ -7,9 +7,10 @@
 		<link rel="stylesheet" href="css/style.css" />
 	</head>
 	<body>
-		<canvas id="Board" width="600" height="600"></canvas>
-
-		<input type="text" id="MoveInput" placeholder="e2e4"/>
+		<div class="main-container">
+			<canvas id="boardCanvas" width="600" height="600"></canvas>
+			<input type="text" id="moveInput" placeholder="e2e4"/>
+		</div>
 		<script type="module" src="js/board.js"></script>
 		<script type="module" src="js/fen.js"></script>
 		<script type="module" src="js/globals.js"></script>
