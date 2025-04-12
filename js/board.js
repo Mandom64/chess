@@ -5,16 +5,13 @@
 import { Letters, Numbers, PieceImages } from './globals.js';
 import { isLowerCase, isUpperCase, Vec2 } from './utils.js';
 
-// export class Position {
-// 	constructor(row, col) {
-// 		this.row = row;
-// 		this.col = col;
-// 	}
-// }
+const MoveType = {
+	STRAIGHT: 1,
+	DIAGONAL: 2,
+	KNIGHT: 3,
+	NONE: 0,
+};
 
-/* 
-    Board y is 'this.cols - y' because of algebraic notation for the moves 
-*/
 export class Board {
 	constructor() {
 		this.square = [];
@@ -33,6 +30,26 @@ export class Board {
 		console.table(this.square);
 	}
 
+	isPathClear(from, to, dir) {
+		let row = from.row;
+		let col = from.col;
+		let rowIncrement = Math.abs(dir.row);
+		let colIncrement = Math.abs(dir.col);
+		console.log('from', from, 'to', to, 'dir', dir, this.square[row][col]);
+		
+		while( row <= to.row && col <= to.col) {
+			row += rowIncrement;
+			col += colIncrement;
+			if(this.square[row][col] !== '0'){
+				console.log('Error: Path is not clear!');
+				return false;	
+			}
+			console.log('hello!');
+		}
+
+		return true;
+	}
+
 	isValidMove(from, to) {
 		let dir = new Vec2(from.row - to.row, from.col - to.col);
 		let piece = this.square[from.row][from.col];
@@ -40,7 +57,7 @@ export class Board {
 
 		/* Out of bounds check */
 		if (to.row < 0 || to.row > this.rows || to.col < 0 || to.col > this.cols) {
-			console.log('Error: move ' + str + 'is illegal!');
+			console.log('Error: move ' + str + 'is outside of the board!');
 			return false;
 		}
 
@@ -50,11 +67,15 @@ export class Board {
 				(isLowerCase(piece) && isLowerCase(nextSquare)) ||
 				(isUpperCase(piece) && isUpperCase(nextSquare))
 			) {
-				console.log('Error: move is blocked by friendly piece');
+				console.log('Error: move is blocked by friendly piece!');
 				return false;
 			}
 		}
 
+		/*
+			Here lie all the piece constraints/rules and where
+			there will 100% be bugs   
+		*/
 		switch (piece) {
 			case 'p':
 				/* Forward check */
@@ -70,7 +91,19 @@ export class Board {
 
 				break;
 			case 'r':
-				return true;
+				console.log('Rook direction: ', dir);
+				/* Diagonal check */
+				if (Math.abs(dir.row) !== 0 && Math.abs(dir.col) !== 0) {
+					console.log('Error: Rook cannot move diagonally!');
+					return false;
+				}
+
+				/* Check if there is a piece in the path */
+				if(this.isPathClear(from, to, dir)) {
+					console.log('Path is not clear!');
+					return true;
+				}
+
 				break;
 			case 'n':
 				return true;
@@ -116,10 +149,11 @@ export class Board {
 		return false;
 	}
 
-	// c7c6 = { x: 1, y: 7 }, { x: 1, y: 6}
-	// c7: row: 7, col: 2
-	// c6: row: 6, col: 2
 	Move(str) {
+		/*
+			If a square is 'c7', 'c' is the col and '7' is the row, so
+			i can still access the board like so 'board[row][col]' 
+		*/
 		let from = new Vec2(parseInt(this.rows - str[1]), Letters[str[0]]);
 		let to = new Vec2(parseInt(this.rows - str[3]), Letters[str[2]]);
 
@@ -128,16 +162,19 @@ export class Board {
 			return;
 		}
 
+		/* If the move is valid, make it */
 		this.square[to.row][to.col] = this.square[from.row][from.col];
 		this.square[from.row][from.col] = '0';
 	}
 
 	Draw(canvas, ctx) {
+		/* Square Dimensions */
 		let rectW = canvas.width / this.rows;
 		let rectH = canvas.height / this.cols;
 
 		for (let row = 0; row < this.rows; row++) {
 			for (let col = 0; col < this.cols; col++) {
+				/* Square position inside canvas */
 				let rectX = col * rectW;
 				let rectY = row * rectH;
 
