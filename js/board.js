@@ -3,7 +3,7 @@
 	the pieces with the mouse.
 */
 import { Letters, Numbers, PieceImages } from './globals.js';
-import { isLowerCase, isUpperCase, Vec2 } from './utils.js';
+import { isLowerCase, isUpperCase, isNumber, Vec2 } from './utils.js';
 
 const MoveTypes = {
 	Straight: 1,
@@ -31,9 +31,10 @@ export class Board {
 	}
 
 	getMoveType(direction) {
-		if (Math.abs(direction.row) === Math.abs(direction.col)) return MoveTypes.Diagonal;
 		if (direction.row === 0 || direction.col === 0) return MoveTypes.Straight;
-		
+		if (Math.abs(direction.row) === Math.abs(direction.col))
+			return MoveTypes.Diagonal;
+
 		return MoveTypes.None;
 	}
 
@@ -68,16 +69,19 @@ export class Board {
 		return true;
 	}
 
+	isValidInput(str) {
+		if (str.length !== 4) return false;
+		if (Letters[str[0]] === undefined || Letters[str[2]] === undefined)
+			return false;
+		if (!isNumber(str[1]) || !isNumber(str[3])) return false;
+
+		return true;
+	}
+
 	isValidMove(from, to) {
 		let dir = new Vec2(from.row - to.row, from.col - to.col);
 		let piece = this.square[from.row][from.col];
 		let nextSquare = this.square[to.row][to.col];
-
-		/* Out of bounds check */
-		if (to.row < 0 || to.row > this.rows || to.col < 0 || to.col > this.cols) {
-			console.log('Error: move ' + str + 'is outside of the board!');
-			return false;
-		}
 
 		/* Color check */
 		if (nextSquare !== '0') {
@@ -88,9 +92,9 @@ export class Board {
 		}
 
 		/*
-			Here lie all the piece constraints/rules and where
-			there will 100% be bugs   
-		*/
+		 *	Here lie all the piece constraints/rules and where
+		 *	there will 100% be bugs
+		 */
 		switch (piece) {
 			case 'p':
 				/* Forward check */
@@ -138,8 +142,13 @@ export class Board {
 				break;
 			case 'q':
 				/* Check for arbitrary movements */
-				if (!(this.getMoveType(dir) === MoveTypes.Diagonal || this.getMoveType(dir) === MoveTypes.Straight)) {
-					console.log("Error: Queen cannot move in this manner!");
+				if (
+					!(
+						this.getMoveType(dir) === MoveTypes.Diagonal ||
+						this.getMoveType(dir) === MoveTypes.Straight
+					)
+				) {
+					console.log('Error: Queen cannot move in this manner!');
 					return false;
 				}
 
@@ -199,8 +208,13 @@ export class Board {
 				break;
 			case 'Q':
 				/* Check for arbitrary movements */
-				if (!(this.getMoveType(dir) === MoveTypes.Diagonal || this.getMoveType(dir) === MoveTypes.Straight)) {
-					console.log("Error: Queen cannot move in this manner!");
+				if (
+					!(
+						this.getMoveType(dir) === MoveTypes.Diagonal ||
+						this.getMoveType(dir) === MoveTypes.Straight
+					)
+				) {
+					console.log('Error: Queen cannot move in this manner!');
 					return false;
 				}
 
@@ -219,10 +233,16 @@ export class Board {
 	}
 
 	Move(str) {
+		/* Check if the move string is in correct format */
+		if (!this.isValidInput(str)) {
+			console.log('Error: Move input is wrong!');
+			return;
+		}
+
 		/*
-			If a square is 'c7', 'c' is the col and '7' is the row, so
-			i can still access the board like so 'board[row][col]' 
-		*/
+		 *	If a square is 'c7', 'c' is the col and '7' is the row, so
+		 *	i can still access the board like so 'board[row][col]'
+		 */
 		let from = new Vec2(parseInt(this.rows - str[1]), Letters[str[0]]);
 		let to = new Vec2(parseInt(this.rows - str[3]), Letters[str[2]]);
 

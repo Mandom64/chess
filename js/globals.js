@@ -1,6 +1,6 @@
 /*
-    Contains global that has game state vars and some maps
-*/
+ *   Contains global that has game state vars and some maps
+ */
 
 export let global = {
     activeColor: null,

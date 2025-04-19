@@ -1,9 +1,9 @@
 /*
-	TODO:
-		* Complete FEN functionality
-		* Implement move rules
-		* Use mouse to move pieces
-*/
+ *	TODO:
+ *		* Complete FEN functionality
+ *		* Implement move rules
+ *		* Use mouse to move pieces
+ */
 
 import { FEN } from './fen.js';
 import { Board } from './board.js';
@@ -22,18 +22,6 @@ function Init() {
 	fen.Init(board);
 	board.Draw(canvas, ctx);
 }
-
-// async function clearCanvas() {
-// 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-// }
-
-// /* TODO: Understand how js executes code, unless i do this scrappy thing
-//          images persist when redrawing */
-// async function draw() {
-// 	await clearCanvas();
-// 	board.Draw(canvas, ctx);
-// }
-
 
 /* Main Loop */
 Init();

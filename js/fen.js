@@ -1,6 +1,7 @@
 /*
-    FEN stuff
-*/
+ *   FEN stuff
+ */
+
 import { global } from './globals.js';
 
 export class FEN {
