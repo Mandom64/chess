@@ -5,11 +5,11 @@
 import { Letters, Numbers, PieceImages } from './globals.js';
 import { isLowerCase, isUpperCase, Vec2 } from './utils.js';
 
-const MoveType = {
-	STRAIGHT: 1,
-	DIAGONAL: 2,
-	KNIGHT: 3,
-	NONE: 0,
+const MoveTypes = {
+	Straight: 1,
+	Diagonal: 2,
+	Knight: 3,
+	None: 0,
 };
 
 export class Board {
@@ -30,6 +30,13 @@ export class Board {
 		console.table(this.square);
 	}
 
+	getMoveType(direction) {
+		if (Math.abs(direction.row) === Math.abs(direction.col)) return MoveTypes.Diagonal;
+		if (direction.row === 0 || direction.col === 0) return MoveTypes.Straight;
+		
+		return MoveTypes.None;
+	}
+
 	isSameColor(piece, piece2) {
 		return (isLowerCase(piece) && isLowerCase(piece2)) ||
 			(isUpperCase(piece) && isUpperCase(piece2))
@@ -37,6 +44,7 @@ export class Board {
 			: false;
 	}
 
+	/* Works for straight, diagonal moves */
 	isPathClear(from, to, dir) {
 		let row = from.row;
 		let col = from.col;
@@ -50,6 +58,7 @@ export class Board {
 			row += rowIncrement;
 			col += colIncrement;
 
+			/* No check on the final square in the path, since we might want to capture it */
 			if ((row !== to.row || col !== to.col) && this.square[row][col] !== '0') {
 				console.log('Error: Path is blocked by ' + this.square[row][col]);
 				return false;
@@ -98,7 +107,7 @@ export class Board {
 				break;
 			case 'r':
 				/* Diagonal check */
-				if (dir.row !== 0 && dir.col !== 0) {
+				if (this.getMoveType(dir) === MoveTypes.Diagonal) {
 					console.log('Error: Rook cannot move diagonally!');
 					return false;
 				}
@@ -114,10 +123,32 @@ export class Board {
 				return true;
 				break;
 			case 'b':
-				return true;
+				/* Straight check */
+				if (this.getMoveType(dir) === MoveTypes.Straight) {
+					console.log('Error: Bishop cannot move straight!');
+					return false;
+				}
+
+				/* Check if there is a piece in the path */
+				if (this.isPathClear(from, to, dir)) {
+					console.log('Path is clear!');
+					return true;
+				}
+
 				break;
 			case 'q':
-				return true;
+				/* Check for arbitrary movements */
+				if (!(this.getMoveType(dir) === MoveTypes.Diagonal || this.getMoveType(dir) === MoveTypes.Straight)) {
+					console.log("Error: Queen cannot move in this manner!");
+					return false;
+				}
+
+				/* Check if there is a piece in the path */
+				if (this.isPathClear(from, to, dir)) {
+					console.log('Path is clear!');
+					return true;
+				}
+
 				break;
 			case 'k':
 				return true;
@@ -137,7 +168,7 @@ export class Board {
 				break;
 			case 'R':
 				/* Diagonal check */
-				if (dir.row !== 0 && dir.col !== 0) {
+				if (this.getMoveType(dir) === MoveTypes.Diagonal) {
 					console.log('Error: Rook cannot move diagonally!');
 					return false;
 				}
@@ -153,10 +184,32 @@ export class Board {
 				return true;
 				break;
 			case 'B':
-				return true;
+				/* Straight check */
+				if (this.getMoveType(dir) === MoveTypes.Straight) {
+					console.log('Error: Bishop cannot move straight!');
+					return false;
+				}
+
+				/* Check if there is a piece in the path */
+				if (this.isPathClear(from, to, dir)) {
+					console.log('Path is clear!');
+					return true;
+				}
+
 				break;
 			case 'Q':
-				return true;
+				/* Check for arbitrary movements */
+				if (!(this.getMoveType(dir) === MoveTypes.Diagonal || this.getMoveType(dir) === MoveTypes.Straight)) {
+					console.log("Error: Queen cannot move in this manner!");
+					return false;
+				}
+
+				/* Check if there is a piece in the path */
+				if (this.isPathClear(from, to, dir)) {
+					console.log('Path is clear!');
+					return true;
+				}
+
 				break;
 			case 'K':
 				return true;
