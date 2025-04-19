@@ -30,21 +30,30 @@ export class Board {
 		console.table(this.square);
 	}
 
+	isSameColor(piece, piece2) {
+		return (isLowerCase(piece) && isLowerCase(piece2)) ||
+			(isUpperCase(piece) && isUpperCase(piece2))
+			? true
+			: false;
+	}
+
 	isPathClear(from, to, dir) {
 		let row = from.row;
 		let col = from.col;
-		let rowIncrement = Math.abs(dir.row);
-		let colIncrement = Math.abs(dir.col);
-		console.log('from', from, 'to', to, 'dir', dir, this.square[row][col]);
-		
-		while( row <= to.row && col <= to.col) {
+		let rowIncrement = dir.row !== 0 ? 1 : 0;
+		let colIncrement = dir.col !== 0 ? 1 : 0;
+
+		if (from.row > to.row) rowIncrement = -rowIncrement;
+		if (from.col > to.col) colIncrement = -colIncrement;
+
+		while (row !== to.row || col !== to.col) {
 			row += rowIncrement;
 			col += colIncrement;
-			if(this.square[row][col] !== '0'){
-				console.log('Error: Path is not clear!');
-				return false;	
+
+			if ((row !== to.row || col !== to.col) && this.square[row][col] !== '0') {
+				console.log('Error: Path is blocked by ' + this.square[row][col]);
+				return false;
 			}
-			console.log('hello!');
 		}
 
 		return true;
@@ -63,10 +72,7 @@ export class Board {
 
 		/* Color check */
 		if (nextSquare !== '0') {
-			if (
-				(isLowerCase(piece) && isLowerCase(nextSquare)) ||
-				(isUpperCase(piece) && isUpperCase(nextSquare))
-			) {
+			if (this.isSameColor(piece, nextSquare)) {
 				console.log('Error: move is blocked by friendly piece!');
 				return false;
 			}
@@ -91,16 +97,15 @@ export class Board {
 
 				break;
 			case 'r':
-				console.log('Rook direction: ', dir);
 				/* Diagonal check */
-				if (Math.abs(dir.row) !== 0 && Math.abs(dir.col) !== 0) {
+				if (dir.row !== 0 && dir.col !== 0) {
 					console.log('Error: Rook cannot move diagonally!');
 					return false;
 				}
 
 				/* Check if there is a piece in the path */
-				if(this.isPathClear(from, to, dir)) {
-					console.log('Path is not clear!');
+				if (this.isPathClear(from, to, dir)) {
+					console.log('Path is clear!');
 					return true;
 				}
 
@@ -131,7 +136,18 @@ export class Board {
 
 				break;
 			case 'R':
-				return true;
+				/* Diagonal check */
+				if (dir.row !== 0 && dir.col !== 0) {
+					console.log('Error: Rook cannot move diagonally!');
+					return false;
+				}
+
+				/* Check if there is a piece in the path */
+				if (this.isPathClear(from, to, dir)) {
+					console.log('Path is clear!');
+					return true;
+				}
+
 				break;
 			case 'N':
 				return true;
